@@ -1,0 +1,19 @@
+doctype html
+html(lang="zh-cmn-Hans")
+  head
+    meta(charset="utf-8")
+    title Express-Typescript.
+    each css in htmlWebpackPlugin.files.css
+      link(href="#{css}", rel="stylesheet")
+
+  body
+    div.app-container.t-center
+      - const logoImg = require('../assets/logo.png')
+      img(src="#{logoImg}")
+      h1 About.
+      h3 Pure. Clean. Only Typescript.
+      a(href="/") Back to index.
+
+      div.script-requirement
+        each chunk in htmlWebpackPlugin.files.chunks
+          script(src="#{chunk.entry}")

@@ -1,0 +1,24 @@
+doctype html
+html(lang="zh-cmn-Hans")
+  head
+    meta(charset="utf-8")
+    title Express-Typescript.
+    each css in htmlWebpackPlugin.files.css
+      link(href="#{css}", rel="stylesheet")
+
+  body
+    div.app-container.t-center
+      header
+        - const logoImg = require('../assets/logo.png')
+        img(src="#{logoImg}")
+        h1 Express-Typescript is On!
+        p Do something what you like.
+
+      p
+        a(href="/about") Go to about.
+
+      p#content-text        
+
+      div.script-requirement
+        each chunk in htmlWebpackPlugin.files.chunks
+          script(src="#{chunk.entry}")
