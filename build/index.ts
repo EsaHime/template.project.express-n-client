@@ -35,17 +35,17 @@ export default function (app: Express) {
         callback()
       })
     })
-
-    // Update templates.
-    compiler.plugin('done', () => {
-      const fs = devMW.fileSystem
-      const tplFiles = fs.readdirSync(path.join(webpackConfig.output.path, './templates'))
-      tplFiles.forEach(tplName => {
-        const tplPath = path.join(webpackConfig.output.path, './templates/' + tplName)
-        global['templates'][tplName.replace('.html', '')] = fs.readFileSync(tplPath).toString()
-      })
-    })
   }
+
+  // Update templates.
+  compiler.plugin('done', () => {
+    const fs = devMW.fileSystem
+    const tplFiles = fs.readdirSync(path.join(webpackConfig.output.path, './templates'))
+    tplFiles.forEach(tplName => {
+      const tplPath = path.join(webpackConfig.output.path, './templates/' + tplName)
+      global['templates'][tplName.replace('.html', '')] = fs.readFileSync(tplPath).toString()
+    })
+  })
 
   app.use(devMW)
   app.use(hotMW)

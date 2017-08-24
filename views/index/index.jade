@@ -17,8 +17,9 @@ html(lang="zh-cmn-Hans")
       p
         a(href="/about") Go to about.
 
-      p#content-text        
+      p#content-text
 
       div.script-requirement
-        each chunk in htmlWebpackPlugin.files.chunks
-          script(src="#{chunk.entry}")
+        each chunk, key in htmlWebpackPlugin.files.chunks
+          - if (key === 'index')
+            script(src="#{chunk.entry}")

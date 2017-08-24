@@ -4,8 +4,8 @@
   "description": "A express template in pure typescript.",
   "license": "MIT",
   "scripts": {
-    "dev": "ts-node ./bin/dev.ts --watch",
-    "prod": "ts-node ./bin/prod.ts"
+    "dev": "cross-env NODE_ENV=development ts-node app.ts --watch",
+    "prod": "cross-env NODE_ENV=production ts-node app.ts"
   },
   "dependencies": {
     "@types/body-parser": "^1.16.3",
@@ -16,6 +16,7 @@
     "autoprefixer": "^6.3.7",
     "body-parser": "~1.16.0",
     "cookie-parser": "~1.4.3",
+    "cross-env": "^5.0.5",
     "css-loader": "^0.23.0",
     "debug": "~2.6.0",
     "eventsource-polyfill": "^0.9.6",

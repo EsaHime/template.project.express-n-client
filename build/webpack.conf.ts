@@ -16,7 +16,7 @@ const config = {
     index: resolve('../views/index/index.ts'),
 
     // About.
-    about: resolve('../views/about/index.ts')    
+    about: resolve('../views/about/index.ts')
   },
 
   // eval-source-map is faster for development
@@ -97,11 +97,7 @@ if (isProd) {
   config.plugins.push(new ExtractTextPlugin('static/css/[name].[contenthash].css')),
 
   // Uglify.
-  config.plugins.push(new webpack.optimize.UglifyJsPlugin({
-    compress: {
-      warnings: false
-    }
-  })),
+  config.plugins.push(new webpack.optimize.UglifyJsPlugin()),
 
   // Vendor.
   new webpack.optimize.CommonsChunkPlugin({
@@ -144,7 +140,7 @@ views.forEach(dirName => {
   if (blackList.indexOf(dirName) > -1) { return }
 
   const tplPath = viewPath + `/${dirName}/index.jade`
-  
+
   if (fs.existsSync(tplPath)) {
     config.plugins.push(new HtmlWebpackPlugin({
       filename: `templates/${dirName}.html`,
