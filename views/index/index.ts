@@ -15,12 +15,12 @@ const conentNode = document.querySelector('#content-text')
 
 /**
  * Set content of #content-text.
- * 
+ *
  * @param {string} [content='']
- * @returns 
+ * @returns
  */
 function setContent (content: string = '') {
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     setTimeout(() => {
       conentNode.textContent += content
       resolve()
