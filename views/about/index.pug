@@ -3,8 +3,6 @@ html(lang="zh-cmn-Hans")
   head
     meta(charset="utf-8")
     title Express-Typescript.
-    each css in htmlWebpackPlugin.files.css
-      link(href="#{css}", rel="stylesheet")
 
   body
     div.app-container.t-center
@@ -12,8 +10,3 @@ html(lang="zh-cmn-Hans")
       h1 About.
       h3 Pure. Clean. Focus on what you do.
       a(href="/") Back to index.
-
-      div.script-requirement
-        each chunk, key in htmlWebpackPlugin.files.chunks
-          - if (key === 'about')
-            script(src="#{chunk.entry}")

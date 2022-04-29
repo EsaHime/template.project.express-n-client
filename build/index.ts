@@ -4,9 +4,8 @@ import * as webpack from 'webpack'
 import * as devMiddleware from 'webpack-dev-middleware'
 import * as hotMiddleware from 'webpack-hot-middleware'
 
-import webpackConfig from './webpack.conf'
-
-const isDev = process.env.NODE_ENV === 'development'
+import { webpackConfig } from './webpack.conf'
+import { setTemplate } from '../modules/template'
 
 /**
  * Initialize static files serving.
@@ -14,39 +13,49 @@ const isDev = process.env.NODE_ENV === 'development'
  *
  * @param app
  */
-export default function (app: Express) {
-  const compiler = webpack(webpackConfig)
+const staticServing = (app: Express) => {
+  const compiler = webpack(webpackConfig, () => {
+    // This callback is used for removing the incorrect warning.
+    // https://github.com/webpack/webpack-cli/issues/1918
+  })
 
   const devMW = devMiddleware(compiler, {
-    publicPath: webpackConfig.output.publicPath,
-    stats: {
-      colors: true,
-      chunks: false
-    }
+    publicPath: webpackConfig.output?.publicPath ?? '/',
+    stats: false
   })
 
   const hotMW = hotMiddleware(compiler)
 
-  if (isDev) {
-    // Hot reload funciton.
-    compiler.plugin('compilation', function (compilation) {
-      compilation.plugin('html-webpack-plugin-after-emit', function (data, callback) {
-        hotMW.publish({ action: 'reload' })
-        callback()
+  // Hot reload funciton.
+  compiler.hooks.compilation.tap('HtmlWebpackPlugin', () => {
+    hotMW.publish({ action: 'reload' })
+  })
+
+  compiler.hooks.done.tap('*', async () => {
+    const fs = devMW.context.outputFileSystem
+    const outputPath = webpackConfig.output?.path ?? ''
+    const tplFiles = await new Promise<string[]>((resolve, reject) => {
+      fs.readdir?.(path.join(outputPath, './templates'), (error, fileList) => {
+        if (error) {
+          return reject(error)
+        }
+        resolve(fileList as string[])
       })
     })
-  }
 
-  // Update templates.
-  compiler.plugin('done', () => {
-    const fs = devMW.fileSystem
-    const tplFiles = fs.readdirSync(path.join(webpackConfig.output.path, './templates'))
-    tplFiles.forEach(tplName => {
-      const tplPath = path.join(webpackConfig.output.path, './templates/' + tplName)
-      global['templates'][tplName.replace('.html', '')] = fs.readFileSync(tplPath).toString()
+    tplFiles.forEach((tplName: string) => {
+      const tplPath = path.join(outputPath, './templates/' + tplName)
+      setTemplate(
+        tplName.replace('.html', ''),
+        fs.readFileSync?.(tplPath)?.toString() ?? ''
+      )
     })
   })
 
   app.use(devMW)
   app.use(hotMW)
+}
+
+export {
+  staticServing
 }

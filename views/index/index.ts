@@ -5,7 +5,7 @@
 // Style.
 import './index.css'
 
-const conentNode = document.querySelector('#content-text')
+const conentNode = document.querySelector('#content-text') as HTMLElement
 
 ;(async () => {
   await setContent('TypeScript ')

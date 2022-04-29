@@ -9,8 +9,6 @@ This template is designed for people
  - Who don't want to make it complicated.
  - Who don't give a sh1t about frontend toolchain.
 
-> This template is pretty old and need to be update. Take care.
-
 ## Features
  - Write both frontend and backend with TypeScript.
  - Hot reloading all the time.
@@ -24,3 +22,18 @@ This template is designed for people
 ## Commands
  - npm run dev
  - npm run prod
+
+## Env
+
+Make a `.env` file under root folder.
+
+This would be like:
+
+```
+HOST=0.0.0.0
+PORT=3000
+APP_NAME=Express-Typescript
+APP_AUTHOR=John Smith
+```
+
+You have to specific at least `HOST` and `PORT`.

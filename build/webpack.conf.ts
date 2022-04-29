@@ -1,76 +1,103 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import * as autoprefixer from 'autoprefixer'
 import * as webpack from 'webpack'
-import * as ExtractTextPlugin from 'extract-text-webpack-plugin'
 import * as HtmlWebpackPlugin from 'html-webpack-plugin'
-import * as OptimizeJsPlugin from 'optimize-js-plugin'
+import * as TerserPlugin from 'terser-webpack-plugin'
+import * as MiniCssExtractPlugin from 'mini-css-extract-plugin'
+import * as CssMinimizerPlugin from 'css-minimizer-webpack-plugin'
+import { GlobalEnv } from '../env'
+// @ts-ignore
+import * as FriendlyErrorsWebpackPlugin from '@soda/friendly-errors-webpack-plugin'
 
-const resolve = file => path.resolve(__dirname, file)
+const resolve = (file: string) => path.resolve(__dirname, file)
+const isProd = GlobalEnv.isProd
 
-const isProd = process.env.NODE_ENV === 'production'
+const viewFolderPath = path.resolve(__dirname, '../views')
+const viewFileList = fs.readdirSync(viewFolderPath)
 
-const config = {
-  entry: {
-    // Index.
-    index: resolve('../views/index/index.ts'),
+const entry: Record<string, string> = {}
 
-    // About.
-    about: resolve('../views/about/index.ts')
-  },
+// Set entry based on views.
+viewFileList.forEach((dirName: string) => {
+  const scriptPath = viewFolderPath + `/${dirName}/index.ts`
+  entry[dirName] = scriptPath
+})
+
+const cssLoader = {
+  test: /\.css$/,
+  use: [
+    'css-loader',
+    'postcss-loader'
+  ]
+}
+
+const stylusLoader = {
+  test: /\.styl$/,
+  use: [
+    'css-loader',
+    'postcss-loader',
+    'stylus-loader'
+  ]
+}
+
+if (isProd) {
+  cssLoader.use = [
+    MiniCssExtractPlugin.loader,
+    ...cssLoader.use
+  ]
+  stylusLoader.use = [
+    MiniCssExtractPlugin.loader,
+    ...stylusLoader.use
+  ]
+} else {
+  cssLoader.use = [
+    'style-loader',
+    ...cssLoader.use
+  ]
+  stylusLoader.use = [
+    'style-loader',
+    ...stylusLoader.use
+  ]
+}
+
+const webpackConfig: webpack.Configuration = {
+  entry,
+
+  mode: isProd ? 'production' : 'development',
 
   // eval-source-map is faster for development
-  devtool: isProd ? '#source-map' : '#eval-source-map',
+  devtool: isProd ? undefined : 'eval-source-map',
 
   output: {
     path: path.resolve(__dirname, '../static'),
-    filename: 'static/scripts/[name].[hash].js',
+    filename: 'static/scripts/[name].[contenthash].js',
     chunkFilename: 'static/scripts/[id].[chunkhash].js',
     publicPath: '/'
   },
 
   resolve: {
-    extensions: ['', '.js', '.ts', '.tsx', '.json'],
-    fallback: [path.join(__dirname, '../node_modules')]
-  },
-
-  resolveLoader: {
-    fallback: [path.join(__dirname, '../node_modules')]
+    extensions: ['.js', '.ts', '.tsx']
   },
 
   module: {
-    loaders: [
+    rules: [
+      cssLoader,
+      stylusLoader,
       {
         test: /\.ts$/,
         loader: 'ts-loader',
         exclude: /node_modules/
       },
       {
-        test: /\.css$/,
-        loader: 'style-loader!css-loader'
+        test: /\.pug$/,
+        loader: 'pug-loader'
       },
       {
-        test: /\.jade$/,
-        loader: 'jade-loader'
-      },
-      {
-        test: /\.json$/,
-        loader: 'json-loader'
-      },
-      {
-        test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+        test: /\.(png|jpe?g|gif|svg|woff2?|eot|ttf|otf)(\?.*)?$/,
         loader: 'url-loader',
-        query: {
+        options: {
           limit: 5000,
-          name: 'static/assets/[name].[hash:7].[ext]'
-        }
-      },
-      {
-        test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-        loader: 'url-loader',
-        query: {
-          limit: 5000,
-          name: 'static/assets/[name].[hash:7].[ext]'
+          name: 'static/assets/[name].[chunkhash].[ext]'
         }
       }
     ]
@@ -78,103 +105,51 @@ const config = {
 
   plugins: [
     new webpack.DefinePlugin({
-      'process.env': JSON.stringify({
-        NODE_ENV: isProd ? 'production' : 'development'
-      })
+      'process.env.NODE_ENV': JSON.stringify(GlobalEnv.nodeEnv)
     }),
 
-    new webpack.optimize.OccurrenceOrderPlugin()
+    new FriendlyErrorsWebpackPlugin()
   ],
 
-  watch: !isProd,
+  watch: true,
 
-  postcss: [autoprefixer({ browsers: ['> 1%', 'last 3 versions', 'Firefox ESR', 'ie 9'] })]
+  optimization: {
+    minimize: isProd,
+    minimizer: isProd
+      ? [new TerserPlugin(), new CssMinimizerPlugin()]
+      : []
+  }
 }
 
-// Production setup.
 if (isProd) {
-  // CSS Extracting.
-  config.plugins.push(new ExtractTextPlugin('static/css/[name].[contenthash].css')),
-
-  // Uglify.
-  config.plugins.push(new webpack.optimize.UglifyJsPlugin()),
-
-  // Vendor.
-  new webpack.optimize.CommonsChunkPlugin({
-    name: 'vendor',
-    minChunks: function (module, count) {
-      // any required modules inside node_modules are extracted to vendor
-      return (
-        module.resource &&
-        /\.js$/.test(module.resource) &&
-        module.resource.indexOf(
-          path.join(__dirname, '../node_modules')
-        ) === 0
-      )
-    }
-  }),
-
-  // extract webpack runtime and module manifest to its own file in order to
-  // prevent vendor hash from being updated whenever app bundle is updated
-  new webpack.optimize.CommonsChunkPlugin({
-    name: 'manifest',
-    chunks: ['vendor']
-  })
+  webpackConfig.plugins!.push(new MiniCssExtractPlugin({
+    filename: 'static/css/[name].[chunkhash].css'
+  }))
 } else {
   // Development setup.
-  Object.keys(config.entry).forEach(entryName => {
-    config.entry[entryName] = [resolve('./dev-client.ts')].concat(config.entry[entryName])
+  Object.keys(webpackConfig.entry!).forEach((entryName: string) => {
+    (webpackConfig.entry as any)[entryName] = [resolve('./dev-client.ts')].concat((webpackConfig.entry as any)[entryName])
   })
 
   // Hot Module Replacement.
-  config.plugins.push(
+  webpackConfig.plugins!.push(
     new webpack.HotModuleReplacementPlugin()
   )
 }
 
 // Define HTML configuration by reading dir "views".
-const blackList = ['assets']
-const viewPath = path.resolve(__dirname, '../views')
-const views = fs.readdirSync(viewPath)
-views.forEach(dirName => {
-  if (blackList.indexOf(dirName) > -1) { return }
-
-  const tplPath = viewPath + `/${dirName}/index.jade`
-
+viewFileList.forEach((dirName: string) => {
+  const tplPath = viewFolderPath + `/${dirName}/index.pug`
   if (fs.existsSync(tplPath)) {
-    config.plugins.push(new HtmlWebpackPlugin({
+    webpackConfig.plugins!.push(new HtmlWebpackPlugin({
       filename: `templates/${dirName}.html`,
       template: tplPath,
-      inject: false
+      inject: true,
+      chunks: [dirName]
     }))
   }
 })
 
-// Define HTML configuration manually.
-
-// Index Page.
-// config.plugins.push(
-//   new HtmlWebpackPlugin({
-//     filename: 'templates/index.html',
-//     template: resolve('../views/index/index.jade'),
-//     inject: false
-//   })
-// )
-
-// // About Page.
-// config.plugins.push(
-//   new HtmlWebpackPlugin({
-//     filename: 'templates/about.html',
-//     template: resolve('../views/about/index.jade'),
-//     inject: false
-//   })
-// )
-
-// Optimize JS.
-config.plugins.push(
-  new OptimizeJsPlugin({
-    sourceMap: false
-  })
-)
-
-export default config
+export {
+  webpackConfig
+}

@@ -7,9 +7,11 @@
  */
 
 import 'eventsource-polyfill'
+
+// @ts-ignore
 import * as hotClient from 'webpack-hot-middleware/client'
 
-hotClient.subscribe(function (event) {
+hotClient.subscribe((event: any) => {
   if (event.action === 'reload') {
     window.location.reload()
   }
