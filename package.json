@@ -1,9 +1,13 @@
 {
-  "name": "template.express-typescript",
-  "version": "0.2.0",
-  "description": "A express template in pure typescript.",
-  "license": "MIT",
+  "name": "esahime_project_name",
+  "version": "1.0.0",
+  "description": "esahime_description",
   "private": true,
+  "author": {
+    "name": "LancerComet",
+    "email": "chw644@hotmail.com"
+  },
+  "license": "Apache-2.0",
   "scripts": {
     "dev": "cross-env NODE_ENV=development ts-node app.ts",
     "prod": "cross-env NODE_ENV=production ts-node app.ts"
