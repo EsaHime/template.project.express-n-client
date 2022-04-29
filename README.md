@@ -2,17 +2,18 @@
 
 ![Logo](/public/logo.png)
 
-An express & TypeScript project template.
+An TypeScript Express template.
 
 This template is designed for people
 
- - Who don't want to make it complicated.
+ - Who only want to use TypeScript.
  - Who don't give a sh1t about frontend toolchain.
 
 ## Features
  - Write both frontend and backend with TypeScript.
  - Hot reloading all the time.
  - No static file generation. You don't need to care about that.
+ - Use SWC instead of TSC for faster building.
 
 ## Attention
  - This template is designed for building small projects / toys.

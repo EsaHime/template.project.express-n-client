@@ -11,8 +11,8 @@ import 'dotenv/config'
 import * as http from 'http'
 import * as path from 'path'
 
-import * as express from 'express'
-import * as cookieParser from 'cookie-parser'
+import express from 'express'
+import cookieParser from 'cookie-parser'
 import * as bodyParser from 'body-parser'
 
 import { router } from './routes'

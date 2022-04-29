@@ -5,7 +5,7 @@
 // Style.
 import './index.css'
 
-const conentNode = document.querySelector('#content-text') as HTMLElement
+const contentText = document.querySelector('#content-text') as HTMLElement
 
 ;(async () => {
   await setContent('TypeScript ')
@@ -22,7 +22,7 @@ const conentNode = document.querySelector('#content-text') as HTMLElement
 function setContent (content: string = '') {
   return new Promise<void>((resolve, reject) => {
     setTimeout(() => {
-      conentNode.textContent += content
+      contentText.textContent += content
       resolve()
     }, 1000)
   })

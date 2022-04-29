@@ -1,13 +1,13 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import * as webpack from 'webpack'
-import * as HtmlWebpackPlugin from 'html-webpack-plugin'
-import * as TerserPlugin from 'terser-webpack-plugin'
-import * as MiniCssExtractPlugin from 'mini-css-extract-plugin'
-import * as CssMinimizerPlugin from 'css-minimizer-webpack-plugin'
+import webpack from 'webpack'
+import HtmlWebpackPlugin from 'html-webpack-plugin'
+import TerserPlugin from 'terser-webpack-plugin'
+import MiniCssExtractPlugin from 'mini-css-extract-plugin'
+import CssMinimizerPlugin from 'css-minimizer-webpack-plugin'
 import { GlobalEnv } from '../env'
 // @ts-ignore
-import * as FriendlyErrorsWebpackPlugin from '@soda/friendly-errors-webpack-plugin'
+import FriendlyErrorsWebpackPlugin from '@soda/friendly-errors-webpack-plugin'
 
 const resolve = (file: string) => path.resolve(__dirname, file)
 const isProd = GlobalEnv.isProd
@@ -84,9 +84,11 @@ const webpackConfig: webpack.Configuration = {
       cssLoader,
       stylusLoader,
       {
-        test: /\.ts$/,
-        loader: 'ts-loader',
-        exclude: /node_modules/
+        test: /\.[jt]s$/,
+        exclude: /(node_modules|bower_components)/,
+        use: {
+          loader: 'swc-loader'
+        }
       },
       {
         test: /\.pug$/,

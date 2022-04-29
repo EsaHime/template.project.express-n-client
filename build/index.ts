@@ -1,8 +1,8 @@
 import * as path from 'path'
 import { Express } from 'express'
-import * as webpack from 'webpack'
-import * as devMiddleware from 'webpack-dev-middleware'
-import * as hotMiddleware from 'webpack-hot-middleware'
+import webpack from 'webpack'
+import devMiddleware from 'webpack-dev-middleware'
+import hotMiddleware from 'webpack-hot-middleware'
 
 import { webpackConfig } from './webpack.conf'
 import { setTemplate } from '../modules/template'
@@ -26,8 +26,8 @@ const staticServing = (app: Express) => {
 
   const hotMW = hotMiddleware(compiler)
 
-  // Hot reload funciton.
-  compiler.hooks.compilation.tap('HtmlWebpackPlugin', () => {
+  // Hot reload function.
+  compiler.hooks.afterCompile.tap('HtmlWebpackPlugin', () => {
     hotMW.publish({ action: 'reload' })
   })
 
