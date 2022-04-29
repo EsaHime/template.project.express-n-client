@@ -2,10 +2,7 @@
  * Frontend code is here.
  */
 
-// Style.
-import './index.css'
-
-const contentText = document.querySelector('#content-text') as HTMLElement
+import './index.styl'
 
 ;(async () => {
   await setContent('TypeScript ')
@@ -20,6 +17,7 @@ const contentText = document.querySelector('#content-text') as HTMLElement
  * @returns
  */
 function setContent (content: string = '') {
+  const contentText = document.querySelector('#content-text') as HTMLElement
   return new Promise<void>((resolve, reject) => {
     setTimeout(() => {
       contentText.textContent += content

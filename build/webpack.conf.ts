@@ -5,7 +5,7 @@ import HtmlWebpackPlugin from 'html-webpack-plugin'
 import TerserPlugin from 'terser-webpack-plugin'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin'
-import { GlobalEnv } from '../env'
+import { GlobalEnv } from '../modules/env'
 // @ts-ignore
 import FriendlyErrorsWebpackPlugin from '@soda/friendly-errors-webpack-plugin'
 
@@ -15,57 +15,17 @@ const isProd = GlobalEnv.isProd
 const viewFolderPath = path.resolve(__dirname, '../views')
 const viewFileList = fs.readdirSync(viewFolderPath)
 
-const entry: Record<string, string> = {}
-
 // Set entry based on views.
+const entry: Record<string, string> = {}
 viewFileList.forEach((dirName: string) => {
-  const scriptPath = viewFolderPath + `/${dirName}/index.ts`
-  entry[dirName] = scriptPath
+  entry[dirName] = viewFolderPath + `/${dirName}/index.ts`
 })
-
-const cssLoader = {
-  test: /\.css$/,
-  use: [
-    'css-loader',
-    'postcss-loader'
-  ]
-}
-
-const stylusLoader = {
-  test: /\.styl$/,
-  use: [
-    'css-loader',
-    'postcss-loader',
-    'stylus-loader'
-  ]
-}
-
-if (isProd) {
-  cssLoader.use = [
-    MiniCssExtractPlugin.loader,
-    ...cssLoader.use
-  ]
-  stylusLoader.use = [
-    MiniCssExtractPlugin.loader,
-    ...stylusLoader.use
-  ]
-} else {
-  cssLoader.use = [
-    'style-loader',
-    ...cssLoader.use
-  ]
-  stylusLoader.use = [
-    'style-loader',
-    ...stylusLoader.use
-  ]
-}
 
 const webpackConfig: webpack.Configuration = {
   entry,
 
   mode: isProd ? 'production' : 'development',
 
-  // eval-source-map is faster for development
   devtool: isProd ? undefined : 'eval-source-map',
 
   output: {
@@ -81,8 +41,23 @@ const webpackConfig: webpack.Configuration = {
 
   module: {
     rules: [
-      cssLoader,
-      stylusLoader,
+      {
+        test: /\.css$/,
+        use: [
+          isProd ? MiniCssExtractPlugin.loader : 'style-loader',
+          'css-loader',
+          'postcss-loader'
+        ]
+      },
+      {
+        test: /\.styl$/,
+        use: [
+          isProd ? MiniCssExtractPlugin.loader : 'style-loader',
+          'css-loader',
+          'postcss-loader',
+          'stylus-loader'
+        ]
+      },
       {
         test: /\.[jt]s$/,
         exclude: /(node_modules|bower_components)/,

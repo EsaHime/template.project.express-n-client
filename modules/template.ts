@@ -1,15 +1,15 @@
-/**
- * This is where the html template strings are stored.
+/*
+ * This module is where the html template strings are stored.
  */
-const templates: Record<string, string> = {
-}
+
+const templateCache: Record<string, string> = {}
 
 const getTemplate = (pageName: string): string => {
-  return templates[pageName]
+  return templateCache[pageName]
 }
 
 const setTemplate = (pageName: string, templateStr: string) => {
-  templates[pageName] = templateStr
+  templateCache[pageName] = templateStr
 }
 
 export {
