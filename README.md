@@ -1,6 +1,6 @@
 # Express-TypeScript
 
-![Logo](https://github.com/lancercomet/template.express-typescript/raw/master/views/assets/logo.png)
+![Logo](/public/logo.png)
 
 An express & TypeScript project template.
 
@@ -8,6 +8,8 @@ This template is designed for people
 
  - Who don't want to make it complicated.
  - Who don't give a sh1t about frontend toolchain.
+
+> This template is pretty old and need to be update. Take care.
 
 ## Features
  - Write both frontend and backend with TypeScript.
